@@ -1,18 +1,23 @@
-FROM node:20-alpine as builder
-WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm ci
-COPY tsconfig*.json nest-cli.json ./
-COPY src ./src
-RUN npm run build
-
+# Use a lightweight Node.js image
 FROM node:20-alpine
-WORKDIR /usr/src/app
-ENV NODE_ENV=production
-COPY package*.json ./
-RUN npm ci --omit=dev
-COPY --from=builder /usr/src/app/dist ./dist
-COPY .env ./.env
-RUN mkdir -p cache
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json yarn.lock ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy all project files
+COPY . .
+
+# Build NestJS app
+RUN yarn build
+
+# Expose app port
 EXPOSE 8080
-CMD ["node","dist/main.js"]
+
+# Start the app
+CMD ["yarn", "start:prod"]
