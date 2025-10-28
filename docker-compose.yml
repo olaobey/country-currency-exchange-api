@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ccx-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_DATABASE: country_cache
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - '3306:3306'
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api:
+    build: .
+    container_name: ccx-api
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./cache:/usr/src/app/cache
+    command: ['npm', 'run', 'start:prod']
+
+volumes:
+  mysql_data:
