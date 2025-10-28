@@ -54,7 +54,7 @@
     "@nestjs/testing": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
     "@types/connect": "^3.4.38",
-    "@types/express": "^5.0.4",
+    "@types/express": "^5.0.5",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.9.1",
     "@types/send": "^1.2.1",

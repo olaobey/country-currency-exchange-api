@@ -1,23 +1,42 @@
-# Use a lightweight Node.js image
-FROM node:20-alpine
-
-# Set working directory
+# ---------------------------
+# 1️⃣ Base image with Node
+# ---------------------------
+FROM node:20-alpine AS base
 WORKDIR /app
 
-# Copy package files
-COPY package*.json yarn.lock ./
+# Copy only dependency files first (for better caching)
+COPY package.json yarn.lock ./
 
-# Install dependencies
+# Install dependencies (production + dev)
 RUN yarn install --frozen-lockfile
 
-# Copy all project files
+# ---------------------------
+# 2️⃣ Build stage
+# ---------------------------
+FROM base AS build
+WORKDIR /app
+
+# Copy the rest of the code
 COPY . .
 
-# Build NestJS app
+# Build the TypeScript code
 RUN yarn build
 
-# Expose app port
-EXPOSE 8080
+# ---------------------------
+# 3️⃣ Production stage
+# ---------------------------
+FROM node:20-alpine AS production
+WORKDIR /app
+
+# Copy only necessary files from build
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production
+
+# Copy built app and any necessary config
+COPY --from=build /app/dist ./dist
+
+# Expose NestJS default port
+EXPOSE 3000
 
 # Start the app
-CMD ["yarn", "start:prod"]
+CMD ["node", "dist/main.js"]
