@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+Dockerfile
+README.md
+.cache
+coverage
+.env
+.vscode
+.idea
+npm-debug.log
+yarn-error.log
